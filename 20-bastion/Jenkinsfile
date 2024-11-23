@@ -17,7 +17,7 @@ pipeline {
             steps {   
                withAWS(region: 'us-east-1', credentials: 'aws-creds') {
                     sh """   
-                        cd 10-sg
+                        cd 20-bastion
                         terraform init -reconfigure
                         terraform plan -out=tfplan
 
@@ -33,7 +33,7 @@ pipeline {
             steps {  
                withAWS(region: 'us-east-1', credentials: 'aws-creds') {
                     sh """   
-                        cd 00-vpc
+                        cd 20-bastion
                         if [ ${params.ACTION} == 'apply' ] 
                         then
                             terraform apply -auto-approve tfplan
@@ -43,40 +43,18 @@ pipeline {
                     """  
                }
            }   
-        }
-        // upstream job 
-        stage('Parallel In Sequential') {
-            when{
-                 expression { params.ACTION == 'apply' }
-            }
-            parallel {
-                stage('Bastion') {
-                   steps { 
-                        build job: '20-bastion', 
-                        parameters: [string(name: 'ACTION', value: "apply")],
-                        wait: false
-                    }
-                }
-                stage('EKS') {
-                   steps { 
-                        build job: '30-eks', 
-                        parameters: [string(name: 'ACTION', value: "apply")],
-                        wait: false
-                    }
-                }
-            }
-        }
-        // down stream job
-        stage ('Destroy vpc') {
+        } 
+        // down stream job 
+        stage ('Destroy sg') {
             when {
                 expression { params.ACTION == 'destroy' }
             }
             steps { 
-            build job: '00-vpc', 
+            build job: '10-sg', 
             parameters: [string(name: 'ACTION', value: "destroy")],
             wait: false
             }
-        }
+        }   
     post {
         always{
             echo "This section always runs"

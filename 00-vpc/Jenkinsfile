@@ -7,13 +7,12 @@ pipeline {
         disableConcurrentBuilds()
         ansiColor('xterm')
     // retry(3)
-     }
-     parameters {
+    }
+    parameters {
         choice(name: 'ACTION', choices: ['apply', 'destroy'], description: 'Select Action')
 
     }
-    stages {
-        
+    stages {   
         stage('init and plan') { 
             steps {   
                withAWS(region: 'us-east-1', credentials: 'aws-creds') {
@@ -23,16 +22,16 @@ pipeline {
                         terraform plan -out=tfplan
 
                     """  
-            }
+               }
+           }
         }
-        }
-         stage('apply or destroy') { 
+        stage('apply or destroy') { 
              input {
                 message "Should we continue to ${params.ACTION}"
                 ok "Yes, we should."
             }
             steps {  
-               withAWS(region: 'us-east-1', credentials: 'aws-creds') {
+                    withAWS(region: 'us-east-1', credentials: 'aws-creds') {
                     sh """   
                         cd 00-vpc
                         if [ ${params.ACTION} == 'apply' ] 
@@ -42,9 +41,21 @@ pipeline {
                             terraform destroy -auto-approve
                         fi   
                     """  
+                    }
+                 }   
+       }
+        // up stream job
+        stage ('Trigger sg') {
+            when {
+                expression { params.ACTION == 'apply' }
             }
-        }   
-    }
+            steps { 
+            build job: '10-sg', 
+            parameters: [string(name: 'ACTION', value: "apply")],
+            wait: false
+            }
+        }
+
     post {
         always{
             echo "This section always runs"
@@ -56,6 +67,6 @@ pipeline {
         failure{
             echo "This section run when pipeline failure"
         }
-    }
+      }
     }
 }
