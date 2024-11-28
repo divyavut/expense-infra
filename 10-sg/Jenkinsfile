@@ -46,55 +46,6 @@ pipeline {
            }   
         }
     }
-        // upstream job 
-        // stage('Parallel In Sequential') {
-        //     when{
-        //          expression { params.ACTION == 'apply' }
-        //     }
-        //     parallel {
-        //         stage('Bastion') {
-        //            steps { 
-        //                 build job: '20-bastion', 
-        //                 parameters: [string(name: 'ACTION', value: "apply")],
-        //                 wait: false
-        //             }
-        //         }
-                // stage('EKS') {
-                //    steps { 
-                //         build job: '30-eks', 
-                //         parameters: [string(name: 'ACTION', value: "apply")],
-                //         wait: false
-                //     }
-                // }
-                
-                // stage('EKS') {
-                //    steps { 
-                //         build job: '30-eks', 
-                //         parameters: [string(name: 'ACTION', value: "apply")],
-                //         wait: false
-                //     }
-                // }
-                // stage('EKS') {
-                //    steps { 
-                //         build job: '30-eks', 
-                //         parameters: [string(name: 'ACTION', value: "apply")],
-                //         wait: false
-                //     }
-                // }
-
-            }
-        // }
-        // down stream job
-        // stage ('Destroy vpc') {
-        //     when {
-        //         expression { params.ACTION == 'destroy' }
-        //     }
-        //     steps { 
-        //     build job: '00-vpc', 
-        //     parameters: [string(name: 'ACTION', value: "destroy")],
-        //     wait: false
-        //     }
-        // } 
     post {
         always{
             echo "This section always runs"
@@ -106,5 +57,5 @@ pipeline {
         failure{
             echo "This section run when pipeline failure"
         }
-    }
+       }
 }
