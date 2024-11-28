@@ -12,7 +12,7 @@ pipeline {
         choice(name: 'ACTION', choices: ['apply', 'destroy'], description: 'Select Action')
 
     }
-    stages {   
+    stages {     
         stage('init and plan') { 
             steps {   
                withAWS(region: 'us-east-1', credentials: 'aws-creds') {
@@ -26,10 +26,10 @@ pipeline {
            }
         }
         stage('apply or destroy') { 
-            //  input {
-            //     message "Should we continue to ${params.ACTION}"
-            //     ok "Yes, we should."
-            }
+        //      input {
+        //         message "Should we continue to ${params.ACTION}"
+        //         ok "Yes, we should."
+        //     }
             steps {  
                     withAWS(region: 'us-east-1', credentials: 'aws-creds') {
                     sh """   
@@ -68,4 +68,5 @@ pipeline {
             echo "This section run when pipeline failure"
         }
       }
+    }
 }
