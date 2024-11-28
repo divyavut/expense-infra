@@ -53,7 +53,15 @@ pipeline {
                         wait: false
                     }
                 }
+                stage('EKS') {
+                   steps { 
+                        build job: '40-eks', 
+                        parameters: [string(name: 'ACTION', value: "apply")],
+                        wait: false
+                    }
+                }
             }
+
         }
      }
     post {
