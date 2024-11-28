@@ -28,5 +28,10 @@ resource "aws_ssm_parameter" "database_subnet_ids" {
   # convert list(String) to StringList, return value "subnet1,subnet2"
   value = join(",",module.vpc.database_subnet_ids)
 }
-
+resource "aws_ssm_parameter" "database_subnet_group_name" {
+  name  = "/${var.project_name}/${var.environment}/database_subnet_group_name"
+  type  = "String"
+  # convert list(String) to StringList, return value "subnet1,subnet2"
+  value = module.vpc.database_subnet_group_name
+}
 
