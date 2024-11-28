@@ -7,8 +7,8 @@ pipeline {
         disableConcurrentBuilds()
         ansiColor('xterm')
     // retry(3)
-     }
-     parameters {
+    }
+    parameters {
         choice(name: 'ACTION', choices: ['apply', 'destroy'], description: 'Select Action')
 
     }
@@ -33,72 +33,68 @@ pipeline {
             steps {  
                withAWS(region: 'us-east-1', credentials: 'aws-creds') {
                     sh """   
-                        cd 00-vpc
-                        if [ ${params.ACTION} == 'apply' ] 
+                        cd 10-sg
+                        if [ "${params.ACTION}" == "apply" ]; 
                         then
                             terraform apply -auto-approve tfplan
-                        elif [ ${params.ACTION} == 'destroy' ]
+                        elif [ "${params.ACTION}" == "destroy" ];
+                        then
                             terraform destroy -auto-approve
                         fi   
                     """  
                }
            }   
         }
+    }
         // upstream job 
-        stage('Parallel In Sequential') {
-            when{
-                 expression { params.ACTION == 'apply' }
-            }
-            parallel {
-                stage('Bastion') {
-                   steps { 
-                        build job: '20-bastion', 
-                        parameters: [string(name: 'ACTION', value: "apply")],
-                        wait: false
-                    }
-                }
-                stage('EKS') {
-                   steps { 
-                        build job: '30-eks', 
-                        parameters: [string(name: 'ACTION', value: "apply")],
-                        wait: false
-                    }
-                }
-                stage('Bastion') {
-                   steps { 
-                        build job: '20-bastion', 
-                        parameters: [string(name: 'ACTION', value: "apply")],
-                        wait: false
-                    }
-                }
-                stage('EKS') {
-                   steps { 
-                        build job: '30-eks', 
-                        parameters: [string(name: 'ACTION', value: "apply")],
-                        wait: false
-                    }
-                }
-                stage('EKS') {
-                   steps { 
-                        build job: '30-eks', 
-                        parameters: [string(name: 'ACTION', value: "apply")],
-                        wait: false
-                    }
-                }
+        // stage('Parallel In Sequential') {
+        //     when{
+        //          expression { params.ACTION == 'apply' }
+        //     }
+        //     parallel {
+        //         stage('Bastion') {
+        //            steps { 
+        //                 build job: '20-bastion', 
+        //                 parameters: [string(name: 'ACTION', value: "apply")],
+        //                 wait: false
+        //             }
+        //         }
+                // stage('EKS') {
+                //    steps { 
+                //         build job: '30-eks', 
+                //         parameters: [string(name: 'ACTION', value: "apply")],
+                //         wait: false
+                //     }
+                // }
+                
+                // stage('EKS') {
+                //    steps { 
+                //         build job: '30-eks', 
+                //         parameters: [string(name: 'ACTION', value: "apply")],
+                //         wait: false
+                //     }
+                // }
+                // stage('EKS') {
+                //    steps { 
+                //         build job: '30-eks', 
+                //         parameters: [string(name: 'ACTION', value: "apply")],
+                //         wait: false
+                //     }
+                // }
 
             }
-        }
+        // }
         // down stream job
-        stage ('Destroy vpc') {
-            when {
-                expression { params.ACTION == 'destroy' }
-            }
-            steps { 
-            build job: '00-vpc', 
-            parameters: [string(name: 'ACTION', value: "destroy")],
-            wait: false
-            }
-        }
+        // stage ('Destroy vpc') {
+        //     when {
+        //         expression { params.ACTION == 'destroy' }
+        //     }
+        //     steps { 
+        //     build job: '00-vpc', 
+        //     parameters: [string(name: 'ACTION', value: "destroy")],
+        //     wait: false
+        //     }
+        // } 
     post {
         always{
             echo "This section always runs"
@@ -110,6 +106,5 @@ pipeline {
         failure{
             echo "This section run when pipeline failure"
         }
-    }
     }
 }
