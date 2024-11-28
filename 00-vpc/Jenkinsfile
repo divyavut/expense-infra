@@ -44,18 +44,18 @@ pipeline {
                     """  
                     }
                  }   
-       }
-        // sg is down stream job for vpc
-        // stage ('Trigger sg') {
-        //     when {
-        //         expression { params.ACTION == 'apply' }
-        //     }
-        //     steps { 
-        //     build job: '10-sg', 
-        //     parameters: [string(name: 'ACTION', value: "apply")],
-        //     wait: false
-        //     }
-        // }
+        }
+       // sg is down stream job for vpc
+        stage ('Trigger sg') {
+            when {
+                expression { params.ACTION == 'apply' }
+            }
+            steps { 
+            build job: '10-sg', 
+            parameters: [string(name: 'ACTION', value: "apply")],
+            wait: false
+            }
+        }
     }
     post {
         always{
