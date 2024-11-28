@@ -26,10 +26,6 @@ pipeline {
             }
         }
         stage('apply or destroy') { 
-            //  input {
-            //     message "Should we continue to ${params.ACTION}"
-            //     ok "Yes, we should."
-            // }
             steps {  
                withAWS(region: 'us-east-1', credentials: 'aws-creds') {
                     sh """   
@@ -45,7 +41,21 @@ pipeline {
                }
            }   
         }
-    }
+       stage('Parallel In Sequential') {
+            when{
+                 expression { params.ACTION == 'apply' }
+            }
+            parallel {
+                stage('Bastion') {
+                   steps { 
+                        build job: '20-bastion', 
+                        parameters: [string(name: 'ACTION', value: "apply")],
+                        wait: false
+                    }
+                }
+            }
+        }
+     }
     post {
         always{
             echo "This section always runs"
