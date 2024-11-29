@@ -10,3 +10,7 @@ variable "app_alb_tags" {
     type = string
     default = "app-alb"
 }
+variable  "zone_name" {
+  type        = string
+  default     = "dev.divyavutakanti.com"
+}
