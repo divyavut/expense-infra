@@ -26,35 +26,22 @@ pipeline {
             }
         }
         stage('apply or destroy') { 
-             input {
-                message "Should we continue to ${params.ACTION}"
-                ok "Yes, we should."
-            }
             steps {  
                withAWS(region: 'us-east-1', credentials: 'aws-creds') {
                     sh """   
                         cd 60-alb
-                        if [ ${params.ACTION} == 'apply' ] 
+                        if [ "${params.ACTION}" == "apply" ];
                         then
                             terraform apply -auto-approve tfplan
-                        elif [ ${params.ACTION} == 'destroy' ]
+                        elif [ "${params.ACTION}" == "destroy" ];
+                        then
                             terraform destroy -auto-approve
                         fi   
                     """  
                }
            }   
         } 
-         // down stream job 
-        stage ('Destroy bastion') {
-            when {
-                expression { params.ACTION == 'destroy' }
-            }
-            steps { 
-            build job: '20-bastion', 
-            parameters: [string(name: 'ACTION', value: "destroy")],
-            wait: false
-            }
-        }      
+    }    
     post {
         always{
             echo "This section always runs"
@@ -67,5 +54,5 @@ pipeline {
             echo "This section run when pipeline failure"
         }
     }
-    }
+    
 }
