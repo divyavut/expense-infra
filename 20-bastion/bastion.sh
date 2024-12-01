@@ -30,6 +30,9 @@ else
     echo "You are super user."
 fi
 
+# mysql
+dnf install mysql -y
+VALIDATE $? "install mysql"
 # docker
 yum install -y yum-utils
 yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo

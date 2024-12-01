@@ -104,15 +104,16 @@ resource "aws_security_group_rule" "node_node" {
   security_group_id = module.node_sg.id 
 }
 
-# mysql allows  traffic and on port 22 from bastion (vice versa)
+# mysql allows  traffic and on port 3306 from bastion 
 resource "aws_security_group_rule" "mysql_bastion" {
   type              = "ingress"
-  from_port         = 22
-  to_port           = 22
+  from_port         = 3306
+  to_port           = 3306
   protocol          = "tcp"
   source_security_group_id = module.bastion_sg.id
   security_group_id = module.mysql_sg.id 
 }
+
 # bastion allows  traffic and on port 22 from public
 resource "aws_security_group_rule" "bastion_internet_user" {
   type              = "ingress"
@@ -121,4 +122,13 @@ resource "aws_security_group_rule" "bastion_internet_user" {
   protocol          = "tcp"
   cidr_blocks = ["0.0.0.0/0"]
   security_group_id = module.bastion_sg.id 
+}
+# mysql allows  traffic and on port 3306 from node
+resource "aws_security_group_rule" "mysql_node" {
+  type              = "ingress"
+  from_port         = 3306
+  to_port           = 3306
+  protocol          = "tcp"
+  source_security_group_id = module.node_sg.id
+  security_group_id = module.mysql_sg.id
 }
